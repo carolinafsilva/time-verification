@@ -1,0 +1,23 @@
+(ocamllex lexer)
+
+(menhir
+ (modules parser))
+
+(executable
+ (name main)
+ (libraries why3)
+ (modes native)
+ (promote (until-clean)))
+
+(rule
+ (alias run)
+ (deps
+  (:main ./main.exe)
+  (:file ./Examples/assign.cs))
+ (action
+  (run %{main} %{file})))
+
+(env
+ (dev
+  (flags
+   (:standard -w +A -warn-error +A-4-26-27-33-70))))

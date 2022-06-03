@@ -1,0 +1,8 @@
+forall k. (k < i and k > 0) => (x[k] >= x[k-1])
+i
+n
+fun i -> 9*i + 15
+(forall k. (j < k and k < i) => x[k] > key) and (forall k1. forall k2.  0 <= k1 and k1 <= k2 and k2 <= i and not (k1 == j) and not (k2 == j) => x[k1] <= x[k2])
+i-j
+n
+fun i -> 9

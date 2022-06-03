@@ -1,0 +1,4 @@
+0 <= l and u < n and (forall i. (0 <= i and i < n) and a[i] == v => l <= i and i <= u)
+n - u + l
+logn
+fun k -> 40

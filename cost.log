@@ -1,0 +1,22 @@
+After while 1
+((Assign + ((Sum + (Var + Cons)) + Arr)) + (Assign + (Sub + (Var + Cons))))
+After while 2
+(((((Assign + Arr) + (Assign + (Sub + (Var + Cons)))) + (((n + 1) × (And + ((Gt + (Arr + Var)) + (Ge + (Var + Cons))))) + (n × ((Assign + ((Sum + (Var + Cons)) + Arr)) + (Assign + (Sub + (Var + Cons))))))) + (Assign + ((Sum + (Var + Cons)) + Var))) + (Assign + (Sum + (Var + Cons))))
+After while 1
+(Assign + Var)
+After while 1
+(Assign + Var)
+After while 1
+(Assign + Var)
+After while 1
+(Assign + Var)
+After while 1
+(Assign + Var)
+After while 1
+((((Assign + Var) + Skip) + (Lt + (Arr + Arr))) + (Assign + (Sum + (Var + Cons))))
+After while 2
+(((((((Assign + Var) + (Assign + (Sum + (Var + Cons)))) + (((n + 1) × (Lt + (Var + Var))) + (n × ((((Assign + Var) + Skip) + (Lt + (Arr + Arr))) + (Assign + (Sum + (Var + Cons))))))) + (Assign + Arr)) + (Assign + (Var + Arr))) + (Assign + (Var + Var))) + (Assign + (Sum + (Var + Cons))))
+After while 1
+((Assign + ((Sum + (Var + Cons)) + Arr)) + (Assign + (Sub + (Var + Cons))))
+After while 2
+(((((Assign + Arr) + (Assign + (Sub + (Var + Cons)))) + (((n + 1) × (And + ((Gt + (Arr + Var)) + (Ge + (Var + Cons))))) + (n × ((Assign + ((Sum + (Var + Cons)) + Arr)) + (Assign + (Sub + (Var + Cons))))))) + (Assign + ((Sum + (Var + Cons)) + Var))) + (Assign + (Sum + (Var + Cons))))
