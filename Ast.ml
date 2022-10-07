@@ -49,9 +49,10 @@ type annot =
   | AExists of ident * annot
   | AForall of ident * annot
 
-type lambda = ident * aexp (*TODO is this good enough?*)
+type lambda = ident * aexp
 
 (* invariant * variant * number of iterations *)
 type oracle = annot * aexp * aexp
 
+(* preconditon, program, postcondition, resource bound *)
 type hoare = annot * stmt * annot * aexp

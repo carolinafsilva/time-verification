@@ -136,3 +136,13 @@ let rec print_annot a =
 let print vcs =
   let f x = Printf.printf "\n" ; print_annot x ; Printf.printf "\n" in
   List.iter f vcs
+
+let print_loc (l : Semantics.loc) =
+    match l with
+    | Semantics.Id s -> Printf.printf "%s" s
+    | Semantics.ArrId (s,i) -> Printf.printf "%s[%d]" s i
+
+let print_state (s : Semantics.state) =
+    Printf.printf "{\n";
+    Hashtbl.iter (fun i v -> Printf.printf "    ";print_loc i; Printf.printf " = %d\n" v) s;
+    Printf.printf "}\n"

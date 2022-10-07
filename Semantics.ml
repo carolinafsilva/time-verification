@@ -7,6 +7,8 @@ type value = int
 
 type state = (loc, value) Hashtbl.t
 
+let (env:state) = Hashtbl.create 997
+
 let int_exp x y = float_of_int x ** float_of_int y |> int_of_float
 
 let rec a' env exp =
