@@ -15,20 +15,23 @@ let oracle () =
     Printf.printf "Number of Iterations: " ;
     let input = read_line () in
     let n = Lexing.from_string input |> Parser.aexp_start Lexer.token in
-    Printf.printf "Cost Function of While: " ;
+    Printf.printf "Amortized cost of while body: " ;
     let input = read_line () in
-    let t = Lexing.from_string input |> Parser.lambda_start Lexer.token in
-    (inv, f, n, t)
+    let a = Lexing.from_string input |> Parser.aexp_start Lexer.token in
+    Printf.printf "Potential Function: " ;
+    let input = read_line () in
+    let p = Lexing.from_string input |> Parser.aexp_start Lexer.token in
+    (inv, f, n, a, p)
   with _ ->
     Printf.printf "Oracle Error\n" ;
-    (ABool true, Cons 1, Cons 1, ("k", Cons 1))
+    (ABool true, Cons 1, Cons 1, Cons 1, Cons 1)
 
 let get_oracle id =
   if Hashtbl.mem oracle_hashtbl id then Hashtbl.find oracle_hashtbl id
   else
-    let inv, f, n, t = oracle () in
-    Hashtbl.add oracle_hashtbl id (inv, f, n, t) ;
-    (inv, f, n, t)
+    let inv, f, n, a, p = oracle () in
+    Hashtbl.add oracle_hashtbl id (inv, f, n, a, p) ;
+    (inv, f, n, a, p)
 
 let log msg =
   let oc = open_out_gen [Open_append; Open_creat] 0o644 "cost.log" in
@@ -53,9 +56,8 @@ let rec asubst exp x arg =
       Div (asubst e1 x arg, asubst e2 x arg)
   | Exp (e1, e2) ->
       Exp (asubst e1 x arg, asubst e2 x arg)
-  | Sigma (ident, i, upper, body) ->
-      (*FIXME What if x = ident ?*)
-      Sigma (ident, i, asubst upper x arg, asubst body x arg)
+  | Sigma (ident, lower, upper, body) ->
+      Sigma (ident, lower, upper, asubst body x arg)
 
 let rec subst phi x e =
   match phi with
@@ -104,8 +106,8 @@ let rec asubst_arr exp x i arg =
       Div (asubst_arr e1 x i arg, asubst_arr e2 x i arg)
   | Exp (e1, e2) ->
       Exp (asubst_arr e1 x i arg, asubst_arr e2 x i arg)
-  | Sigma (ident, n, upper, body) ->
-      Sigma (ident, n, asubst_arr upper x i arg, asubst_arr body x i arg)
+  | Sigma (ident, lower, upper, body) ->
+      Sigma (ident, lower, upper, asubst_arr body x i arg)
 
 let rec subst_arr phi x i e =
   match phi with
@@ -159,10 +161,6 @@ let rec annot_of_bexp bexp =
   | Or (e1, e2) ->
       AOr (annot_of_bexp e1, annot_of_bexp e2)
 
-let lambda_app (f : lambda) x =
-  let ident, body = f in
-  asubst body ident x
-
 let rec wpc s phi verbose =
   match s with
   | Skip ->
@@ -185,19 +183,19 @@ let rec wpc s phi verbose =
       let v_b = annot_of_bexp b in
       let tb = time_bexp b in
       (AAnd (AImpl (v_b, wp1), AImpl (ANeg v_b, wp2)), Sum (Sum (t1, t2), tb))
-      (* TODO: fix max *)
   | While (id, b, _) ->
-      let inv, f, n, t = get_oracle id in
-      let time =
-        Sum
-          ( Mul (Sum (n, Cons 1), time_bexp b)
-          , Sigma ("k", 0, Sub (n, Cons 1), lambda_app t (Var "k")) )
-      in
-      (AAnd (inv, AGe (f, Cons 0)), time)
+      let inv, f, n, a, p = get_oracle id in
+      let time_body = Mul (n, a) in
+      ( AAnd (AAnd (inv, AGe (f, Cons 0)), AEq (p, Cons 0))
+      , Sum (Mul (Sum (n, Cons 1), time_bexp b), time_body) )
 
 let wp s phi : annot =
   let phi, _ = wpc s phi false in
   phi
+
+let lambda_app (f : lambda) x =
+  let ident, body = f in
+  asubst body ident x
 
 let rec vc s phi : annot list =
   match s with
@@ -208,16 +206,18 @@ let rec vc s phi : annot list =
   | If (_, s1, s2) ->
       vc s1 phi @ vc s2 phi
   | While (id, b, s') ->
-      let inv, f, n, t = get_oracle id in
+      let inv, f, n, a, p = get_oracle id in
       let b = annot_of_bexp b in
-      let wp, t' = wpc s' (AAnd (inv, AGt (f, Var "k"))) false in
-      AForall ("k", AImpl (AAnd (inv, AAnd (b, AEq (f, Var "k"))), wp))
-      :: AForall ("k", AGe (lambda_app t (Var "k"), t'))
+      let wp, t = wpc s' (AAnd(inv, AAnd (AGt (f, Var "k"), AEq (p, Var "pk")))) false in
+      AImpl (AAnd (inv, b), ALe (f, n))
+      :: AImpl (inv, AGe(p, Cons 0))
+      :: AForall ( "k", AImpl ( AAnd (inv, AAnd (b, AEq (f, Var "k"))), wp) )
+      :: AGe (Sub (Sum(a, p), Var "pk"), t)
       :: AImpl (AAnd (inv, ANeg b), phi)
-      :: AImpl (AAnd (inv, b), ALe (f, n))
-      :: vc s' (AAnd (inv, ALe (f, Var "k")))
+      :: vc s' inv
 
 let vcg pre s t pos =
   let wp, ts = wpc s pos true in
-  (* let ts = eval_time_aexp ts in *)
+  (* let ts = eval_time_aexp ts in
+  let t = eval_time_aexp t in *)
   ALe (ts, t) :: AImpl (pre, wp) :: vc s pos
