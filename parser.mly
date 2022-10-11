@@ -6,9 +6,9 @@
 
 %token<string> VAR
 %token<int> INT
-%token IF THEN ELSE WHILE DO END SKIP SEMI ATRIB LSB RSB LCB RCB BAR LP RP FUN
-%token TRUE FALSE EXISTS FORALL NOT AND OR EQ NE LT GT LE GE IMPL DOT RARROW
-%token ADD SUB MUL DIV EXP SUM COMMA
+%token IF THEN ELSE FOR TO DO END SKIP SEMI ATRIB LSB RSB LCB RCB BAR LP RP
+%token TRUE FALSE EXISTS FORALL NOT AND OR EQ NE LT GT LE GE IMPL DOT
+%token ADD SUB MUL EXP DIV SUM COMMA
 %token EOF
 
 %token NON
@@ -25,7 +25,6 @@
 %start<hoare> parse
 %start<annot> annot_start
 %start<aexp> aexp_start
-%start<lambda> lambda_start
 
 %%
 
@@ -39,9 +38,6 @@ annot_start:
 
 aexp_start:
  a = aexp EOF {a}
-
-lambda_start:
-  FUN i = VAR RARROW a = aexp EOF {(i,a)}
 
 annot:
   LP a = annot RP { a }
@@ -67,7 +63,7 @@ stmt:
 | s = VAR ATRIB a = aexp { Assign (s, a) }
 | s = VAR LSB a1 = aexp RSB ATRIB a2 = aexp { ArrAssign (s, a1, a2) }
 | IF b = bexp THEN s1 = stmt ELSE s2 = stmt END { If (b, s1, s2) }
-| WHILE b = bexp DO s = stmt END { incr count; While (!count, b, s) }
+| FOR i = VAR ATRIB a = INT TO b = aexp DO s = stmt END { incr count; For (!count, i, a, b, s) }
 
 aexp:
   LP a = aexp RP { a }

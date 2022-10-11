@@ -14,10 +14,10 @@
       "if", IF;
       "then", THEN;
       "else", ELSE;
-      "while", WHILE;
+      "for", FOR;
+      "to", TO;
       "do", DO;
       "end", END;
-      "fun", FUN;
       "skip", SKIP;
       "sum", SUM
     ];
@@ -28,7 +28,6 @@ let space = [' ' '\t']
 
 let newline = '\n' | '\r' | "\r\n"
 
-let positive = ['0'-'9']+
 let number = ['0'-'9']+
 let character = ['a'-'z' 'A'-'Z' '_']
 
@@ -39,8 +38,8 @@ rule token = parse
   | newline         { token lexbuf }
   | "(*"            { comment lexbuf; token lexbuf }
   | "="             { ATRIB }
-  | ","             { COMMA }
   | ";"             { SEMI }
+  | ","             { COMMA }
   | "{"             { LCB }
   | "}"             { RCB }
   | "("             { LP }
@@ -51,7 +50,7 @@ rule token = parse
   | "+"             { ADD }
   | "-"             { SUB }
   | "*"             { MUL }
-  | "/"             { DIV }
+  | "/"             { MUL }
   | "^"             { EXP }
   | "=="            { EQ }
   | "!="            { NE }
@@ -61,7 +60,6 @@ rule token = parse
   | ">="            { GE }
   | "."             { DOT }
   | "=>"            { IMPL }
-  | "->"            { RARROW }
   | number as i     { INT (int_of_string i) }
   | word as w       { check_keyword w }
   | eof             { EOF }

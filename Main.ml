@@ -1,6 +1,6 @@
 open Printer
 open VCGen
-open Easycrypt
+(* open Easycrypt *)
 
 
 let () =
@@ -15,9 +15,9 @@ let () =
 if !Commandline.proof_mode then
     let result = vcg precondition prog time poscondition in
     let oc = open_out_gen [Open_append; Open_creat] 0o644 "output.ec" in
-    let easycrypt = vcs_to_easycrypt result in
+    (* let easycrypt = vcs_to_easycrypt result in *)
     Printf.printf "\n\n***%d VC's Generated ***\n\n" (List.length result) ;
-    Printf.fprintf oc "%s\n" easycrypt ;
+    (* Printf.fprintf oc "%s\n" easycrypt ; *)
     close_out oc ;
     print result
   else

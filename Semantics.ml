@@ -89,12 +89,14 @@ let rec interpret env s =
       let v = b' env b in
       let env, t = if v then interpret env s1 else interpret env s2 in
       (env, t_b + t)
-  | While (c, b, s) ->
-      let t_b = eval_time_bexp b in
-      let v = b' env b in
+  | For (c, i, a, b, s) ->
+      let x =(Lt (Cons a, b)) in
+      let t_b = x |> time_bexp |> eval_time_aexp in
+      Hashtbl.replace env (Id i) a;
+      let v = b' env x in
       if v then
         let env, t' = interpret env s in
-        let env, t = interpret env (While (c, b, s)) in
+        let env, t = interpret env (For (c, i, a+1, b, s)) in
         (env, t_b + t' + t)
       else (env, t_b)
   | Seq (s1, s2) ->

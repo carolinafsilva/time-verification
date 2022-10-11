@@ -31,8 +31,8 @@ type stmt =
   | ArrDef of ident * int
   | ArrAssign of ident * aexp * aexp
   | If of bexp * stmt * stmt
-  | While of count * bexp * stmt
   | Seq of stmt * stmt
+  | For of int * ident * int * aexp * stmt
 
 type annot =
   | ABool of bool
@@ -49,10 +49,7 @@ type annot =
   | AExists of ident * annot
   | AForall of ident * annot
 
-type lambda = ident * aexp
-
 (* invariant * variant * number of iterations *)
 type oracle = annot * aexp * aexp
 
-(* preconditon, program, postcondition, resource bound *)
 type hoare = annot * stmt * annot * aexp
